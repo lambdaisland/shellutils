@@ -1,7 +1,7 @@
-# shellutils
+# 
 
 <!-- badges -->
-[![cljdoc badge](https://cljdoc.org/badge/com.lambdaisland/shellutils)](https://cljdoc.org/d/com.lambdaisland/shellutils) [![Clojars Project](https://img.shields.io/clojars/v/com.lambdaisland/shellutils.svg)](https://clojars.org/com.lambdaisland/shellutils)
+[![cljdoc badge](https://cljdoc.org/badge/com.lambdaisland/)](https://cljdoc.org/d/com.lambdaisland/) [![Clojars Project](https://img.shields.io/clojars/v/com.lambdaisland/.svg)](https://clojars.org/com.lambdaisland/)
 <!-- /badges -->
 
 Globbing and other shell/file utils
@@ -14,13 +14,13 @@ Globbing and other shell/file utils
 To use the latest release, add the following to your `deps.edn` ([Clojure CLI](https://clojure.org/guides/deps_and_cli))
 
 ```
-com.lambdaisland/shellutils {:mvn/version "0.0.0"}
+com.lambdaisland/ {:mvn/version "0.0.0"}
 ```
 
 or add the following to your `project.clj` ([Leiningen](https://leiningen.org/))
 
 ```
-[com.lambdaisland/shellutils "0.0.0"]
+[com.lambdaisland/ "0.0.0"]
 ```
 <!-- /installation -->
 
@@ -35,7 +35,7 @@ or add the following to your `project.clj` ([Leiningen](https://leiningen.org/))
 
 &nbsp;
 
-shellutils is part of a growing collection of quality Clojure libraries created and maintained
+ is part of a growing collection of quality Clojure libraries created and maintained
 by the fine folks at [Gaiwan](https://gaiwan.co).
 
 Pay it forward by [becoming a backer on our Open Collective](http://opencollective.com/lambda-island),
@@ -51,7 +51,7 @@ You can find an overview of our projects at [lambdaisland/open-source](https://g
 <!-- contributing -->
 ## Contributing
 
-Everyone has a right to submit patches to shellutils, and thus become a contributor.
+Everyone has a right to submit patches to , and thus become a contributor.
 
 Contributors MUST
 

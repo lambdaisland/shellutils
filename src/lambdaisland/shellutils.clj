@@ -1,4 +1,4 @@
-(ns lambdaisland.shellutil
+(ns lambdaisland.shellutils
   "Globbing and other shell-like filename handling
 
   Extracted from https://github.com/lambdaisland/open-source and further improved"
@@ -76,8 +76,10 @@
   [^File dir]
   (.listFiles dir))
 
-(defn parent-file ^File [^File dir]
-  (.getParentFile dir))
+(defn parent-file ^File [dir]
+  (.getParentFile (file dir)))
+
+(def dirname parent-file)
 
 (defn filter-files
   "Filter list of files for names matching pattern re"
@@ -89,7 +91,7 @@
 
   Resolves symlinks and makes relative paths absolute"
   ^File [path]
-  (io/file (.getCanonicalPath (io/file path))))
+  (io/file (.getCanonicalPath (file path))))
 
 (defn relativize
   "Turn an absolute path and a base path into a relative path"
@@ -100,7 +102,25 @@
 (defn mkdir-p
   "Make directory including parents"
   [dir]
-  (.mkdirs (io/file dir)))
+  (.mkdirs (file dir)))
+
+(defn basename
+  "Get the name of the file without any directory components"
+  [path]
+  (.getName (file path)))
+
+(defn extension
+  "Get the extension of the file without the dot"
+  [file]
+  (subs (str file)
+        (inc (.lastIndexOf (str file) "."))))
+
+(defn strip-ext
+  "Remove the extension from the file"
+  [file]
+  (subs (str file)
+        0
+        (.lastIndexOf (str file) ".")))
 
 (defn glob
   "Returns a seq of java.io.File instances that match the given glob pattern.
