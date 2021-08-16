@@ -56,3 +56,24 @@
     (is (= [txt-path clj-path] (map str (s/glob (str temp "/*"))) ))
     (is (= [txt-path clj-path] (map str (s/glob (str temp "/*.{txt,clj}"))) ))
     (is (= [txt-path] (map str (s/glob (str temp "/*.txt"))) ))))
+
+(deftest join-string-test
+  
+  (testing "combine with empty"
+    (is (= (str (s/join "foo" "")) "foo")))
+  (testing "combine two strings"
+    (is (= (str (s/join "foo" "bar")) "foo/bar"))))
+
+(deftest join-file-test
+  (testing "combine with empty"
+    (is (= (str (s/join (File. "foo" ) (File. ""))) "foo")))
+  (testing "combine two strings"
+    (is (= (str (s/join (File. "foo") (File. "bar"))) "foo/bar")))
+  )
+
+(deftest join-path-test
+  (testing "combine with empty"
+    (is (= (str (s/join (Paths/get "foo" (into-array String [])) (Paths/get "" (into-array String [])))) "foo")))
+  (testing "combine two strings"
+    (is (= (str (s/join (Paths/get "foo" (into-array String [])) (Paths/get "bar" (into-array String [])))) "foo/bar")))
+  )
