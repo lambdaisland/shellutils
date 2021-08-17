@@ -48,8 +48,8 @@
 
 (deftest glob-test
   (let [temp (temp-dir) 
-        txt-path (str (.resolve temp "test.txt" ))
-        clj-path ( str (.resolve temp "test.clj" )) ]
+        txt-path (str (s/join temp "test.txt" ))
+        clj-path (str (s/join  temp "test.clj" ))]
     (spit txt-path ".")
     (spit clj-path ".")
 
