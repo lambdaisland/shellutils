@@ -4,7 +4,7 @@
   Extracted from https://github.com/lambdaisland/open-source and further improved"
   (:require [clojure.java.io :as io])
   (:import (java.io File)
-           (java.nio.file Paths)))
+           (java.nio.file Path Paths)))
 
 (def ^:dynamic *cwd*
   "Current working directory
@@ -24,6 +24,18 @@
          ~@body
          (finally
            (System/setProperty "user.dir" prev#))))))
+
+(defprotocol Joinable
+  (join [this that] "Join Strings, Paths, and Files into a single Path."))
+
+(extend-protocol Joinable
+  String
+  (join [this that] (join (Paths/get this (make-array String 0)) that))
+  Path
+  (join [this that] (.resolve this (str that)))
+  File
+  (join [this that] (.toPath (io/file this (str that)))))
+
 
 (defn absolute?
   "The File contains an absolute path"
@@ -110,7 +122,11 @@
   (.getName (file path)))
 
 (defn extension
-  "Get the extension of the file without the dot"
+  "Get the extension of the file without the dot
+  
+  This function does not have special handling for files that start with a dot
+  (hidden files on Unix-family systems)."
+
   [file]
   (subs (str file)
         (inc (.lastIndexOf (str file) "."))))
@@ -155,3 +171,4 @@
          (mapcat #(filter-files (ls %) (glob->regex pattern)) files)))
      [start-dir]
      patterns)))
+
