@@ -15,14 +15,14 @@
 
 (deftest absolute-test
   (testing "Test an absolute path."
-    (is (s/absolute? 
+    (is (s/absolute?
           (.getAbsoluteFile (File. (System/getProperty "user.dir"))))))
   (testing "Test a (made-up) relative path."
     (is (not (s/absolute? (File. "fake/"))))))
 
 (deftest relative-test
   (testing "Test an absolute path."
-    (is (not (s/relative? 
+    (is (not (s/relative?
           (.getAbsoluteFile (File. (System/getProperty "user.dir")))))))
   (testing "Test a (made-up) relative path."
     (is (s/relative? (File. "fake/")))))
@@ -47,18 +47,18 @@
     (is (= (s/extension "test") "test"))))
 
 (deftest glob-test
-  (let [temp (temp-dir) 
+  (let [temp (temp-dir)
         txt-path (str (s/join temp "test.txt" ))
-        clj-path (str (s/join  temp "test.clj" ))]
+        clj-path (str (s/join  temp "test.clj"))]
     (spit txt-path ".")
     (spit clj-path ".")
 
-    (is (= [txt-path clj-path] (map str (s/glob (str temp "/*"))) ))
-    (is (= [txt-path clj-path] (map str (s/glob (str temp "/*.{txt,clj}"))) ))
-    (is (= [txt-path] (map str (s/glob (str temp "/*.txt"))) ))))
+    (is (= #{txt-path clj-path} (set (map str (s/glob (str temp "/*"))))))
+    (is (= #{txt-path clj-path} (set (map str (s/glob (str temp "/*.{txt,clj}"))))))
+    (is (= [txt-path] (map str (s/glob (str temp "/*.txt")))))))
 
 (deftest join-string-test
-  
+
   (testing "combine with empty"
     (is (= (str (s/join "foo" "")) "foo")))
   (testing "combine two strings"
@@ -68,12 +68,10 @@
   (testing "combine with empty"
     (is (= (str (s/join (File. "foo" ) (File. ""))) "foo")))
   (testing "combine two strings"
-    (is (= (str (s/join (File. "foo") (File. "bar"))) "foo/bar")))
-  )
+    (is (= (str (s/join (File. "foo") (File. "bar"))) "foo/bar"))))
 
 (deftest join-path-test
   (testing "combine with empty"
     (is (= (str (s/join (Paths/get "foo" (into-array String [])) (Paths/get "" (into-array String [])))) "foo")))
   (testing "combine two strings"
-    (is (= (str (s/join (Paths/get "foo" (into-array String [])) (Paths/get "bar" (into-array String [])))) "foo/bar")))
-  )
+    (is (= (str (s/join (Paths/get "foo" (into-array String [])) (Paths/get "bar" (into-array String [])))) "foo/bar"))))
