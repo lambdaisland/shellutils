@@ -34,7 +34,7 @@
     (is (= (s/basename "foo/bar/baz") "baz"))
     (is (= (s/basename "/foo/bar/baz") "baz"))))
 
-(deftest ^:kaocha/pending extension-test
+(deftest extension-test
   (testing "relatively typical files"
     (is (= (s/extension "test.txt") "txt"))
     (is (= (s/extension "/foo/bar/test.txt") "txt")))

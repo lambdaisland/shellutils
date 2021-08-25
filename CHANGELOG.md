@@ -2,6 +2,11 @@
 
 ## Added
 
-## Fixed
+First release with basic shell utility API
 
-## Changed
+- glob
+- canonicalize/relativize
+- ls
+- basename/extension/strip-ext
+- mkdir-p
+- ...

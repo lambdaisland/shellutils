@@ -36,7 +36,6 @@
   File
   (join [this that] (.toPath (io/file this (str that)))))
 
-
 (defn absolute?
   "The File contains an absolute path"
   [^File f]
@@ -56,28 +55,6 @@
     (if (.isAbsolute f)
       f
       (io/file *cwd* path))))
-
-(defn- glob->regex
-  "Takes a glob-format string and returns a regex."
-  [s]
-  (loop [stream s
-         re ""
-         curly-depth 0]
-    (let [[c j] stream]
-      (cond
-        (nil? c) (re-pattern (str "^" (if (= \. (first s)) "" "(?=[^\\.])") re "$"))
-        (= c \\) (recur (nnext stream) (str re c c) curly-depth)
-        (= c \/) (recur (next stream) (str re (if (= \. j) c "/(?=[^\\.])"))
-                        curly-depth)
-        (= c \*) (recur (next stream) (str re "[^/]*") curly-depth)
-        (= c \?) (recur (next stream) (str re "[^/]") curly-depth)
-        (= c \{) (recur (next stream) (str re \() (inc curly-depth))
-        (= c \}) (recur (next stream) (str re \)) (dec curly-depth))
-        (and (= c \,) (< 0 curly-depth)) (recur (next stream) (str re \|)
-                                                curly-depth)
-        (#{\. \( \) \| \+ \^ \$ \@ \%} c) (recur (next stream) (str re \\ c)
-                                                 curly-depth)
-        :else (recur (next stream) (str re c) curly-depth)))))
 
 (defn- get-root-file
   [root-name]
@@ -123,7 +100,7 @@
 
 (defn extension
   "Get the extension of the file without the dot
-  
+
   This function does not have special handling for files that start with a dot
   (hidden files on Unix-family systems)."
 
@@ -138,6 +115,28 @@
         0
         (.lastIndexOf (str file) ".")))
 
+(defn- glob->regex
+  "Takes a glob-format string and returns a regex."
+  [s]
+  (loop [stream s
+         re ""
+         curly-depth 0]
+    (let [[c j] stream]
+      (cond
+        (nil? c) (re-pattern (str "^" (if (= \. (first s)) "" "(?=[^\\.])") re "$"))
+        (= c \\) (recur (nnext stream) (str re c c) curly-depth)
+        (= c \/) (recur (next stream) (str re (if (= \. j) c "/(?=[^\\.])"))
+                        curly-depth)
+        (= c \*) (recur (next stream) (str re "[^/]*") curly-depth)
+        (= c \?) (recur (next stream) (str re "[^/]") curly-depth)
+        (= c \{) (recur (next stream) (str re \() (inc curly-depth))
+        (= c \}) (recur (next stream) (str re \)) (dec curly-depth))
+        (and (= c \,) (< 0 curly-depth)) (recur (next stream) (str re \|)
+                                                curly-depth)
+        (#{\. \( \) \| \+ \^ \$ \@ \%} c) (recur (next stream) (str re \\ c)
+                                                 curly-depth)
+        :else (recur (next stream) (str re c) curly-depth)))))
+
 (defn glob
   "Returns a seq of java.io.File instances that match the given glob pattern.
   Ignores dot files unless explicitly included.
@@ -146,6 +145,8 @@
 
   Based on
   https://github.com/jkk/clj-glob/blob/b1df67efb003f0e372c914346209d41c6df78e20/src/org/satta/glob.clj
+
+  but with some improvements.
   "
   [pattern]
   (let [[root & _ :as parts] (.split #"[\\/]" pattern)
@@ -171,4 +172,3 @@
          (mapcat #(filter-files (ls %) (glob->regex pattern)) files)))
      [start-dir]
      patterns)))
-
