@@ -1,4 +1,4 @@
-# Unreleased
+# 0.0.10 (2021-08-25 / 91ddd3b)
 
 ## Added
 
