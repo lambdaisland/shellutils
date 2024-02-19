@@ -1,4 +1,4 @@
-#!bin/bb
+#!/usr/bin/env bb
 
 (ns proj
   (:require [lioss.main :as lioss]))
@@ -8,7 +8,3 @@
   :inception-year   2021
   :description      "Globbing and other shell/file utils"
   :group-id         "com.lambdaisland"})
-
-;; Local Variables:
-;; mode:clojure
-;; End:

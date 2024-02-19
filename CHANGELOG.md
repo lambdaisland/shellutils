@@ -2,9 +2,7 @@
 
 ## Added
 
-## Fixed
-
-## Changed
+- Added subshell utilities
 
 # 0.0.10 (2021-08-25 / 91ddd3b)
 

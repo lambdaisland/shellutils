@@ -1,17 +1,103 @@
 (ns lambdaisland.shellutils
-  "Globbing and other shell-like filename handling
+  "Globbing and other shell-like filename handling, and subshell handling
 
   Extracted from https://github.com/lambdaisland/open-source and further improved"
-  (:require [clojure.java.io :as io])
-  (:import (java.io File)
-           (java.nio.file Path Paths)))
+  (:require
+   [clojure.java.io :as io]
+   [clojure.string :as str])
+  (:import
+   (java.io File)
+   (java.nio.file Path Paths)))
+
+(defn cli-opts
+  "Options map from lambdaisland.cli, if it is used. We auto-detect certain flags,
+  like --dry-run."
+  []
+  (some-> (try (requiring-resolve 'lambdaisland.cli/*opts*) (catch Exception _)) deref))
 
 (def ^:dynamic *cwd*
   "Current working directory
 
-  Relative paths are resolved starting from this location. Defaults to the CWD
-  of the JVM, as exposed through the 'user.dir' property."
+  Relative paths are resolved starting from this location, and it is used for
+  subshells. Defaults to the CWD of the JVM, as exposed through the 'user.dir'
+  property."
   (System/getProperty "user.dir"))
+
+(defmacro with-cwd [cwd & body]
+  `(let [prev# *cwd*
+         cwd# (File. *cwd* ~cwd)]
+     (binding [*cwd* cwd#]
+       (try
+         (System/setProperty "user.dir" (str cwd#))
+         ~@body
+         (finally
+           (System/setProperty "user.dir" prev#))))))
+
+(defmacro with-temp-cwd
+  "Same as with-cwd except that it creates a temp dir
+  in *cwd* and evals the body inside it.
+
+  It cleans up the temp dir afterwards also removing
+  any temp files created within it."
+  [& body]
+  ;; FIXME: use Files/createTempDirectory
+  `(let [cwd# ".temp"
+         dir# (File. *cwd* cwd#)]
+     (.mkdirs dir#)
+     (with-cwd cwd# ~@body)
+     (delete-recursively dir#)))
+
+(defn slurp-cwd [f]
+  (slurp (File. *cwd* f)))
+
+(defn spit-cwd [f c]
+  (spit (File. *cwd* f) c))
+
+(defn fatal [& msg]
+  (apply println "[\033[0;31mFATAL\033[0m] " msg)
+  (System/exit -1))
+
+(defn process-builder [args]
+  (doto (ProcessBuilder. args)
+    (.inheritIO)))
+
+;; (def windows? (str/starts-with? (System/getProperty "os.name") "Windows"))
+
+(defn- cmd->str [args]
+  (str/join " " (map #(if (str/includes? % " ") (pr-str %) %) args)))
+
+(defn spawn
+  "Like [[clojure.java.shell/sh]], but inherit IO stream from the parent process,
+  and prints out the invocation. By default terminates when a command
+  fails (non-zero exit code).
+
+  If the last argument is a map, it is used for options
+  - `:dir` Directory to execute in
+  - `:continue-on-error?` Should a non-zero exit code be ignored.
+  - `:fail-message` Error message to show when the command returns a non-zero exit code"
+  [& args]
+  (let [[opts args] (if (map? (last args))
+                      [(last args) (butlast args)]
+                      [{} args])
+        dir (:dir opts *cwd*)
+        ;; args (if windows? (cons "winpty" args) args)
+        ]
+    (println "=>" (cmd->str args) (str "(in " dir ")") "")
+    (when-not (:dry-run (cli-opts))
+      (let [res (-> (process-builder args)
+                    (cond-> dir
+                      (.directory (io/file dir)))
+                    .start
+                    .waitFor)]
+        (when (and (not= 0 res) (not (:continue-on-error? opts)))
+          (fatal (:fail-message opts "command failed") res))
+        res))))
+
+(defn bash
+  "Interpret the command as a bash script, allows using redirects, pipes and other
+  bash features."
+  [& args]
+  (spawn "bash" "-c" (str/join " " args)))
 
 (defmacro with-cwd
   "Execute `body` with [[*cwd*]] set to `cwd`."
