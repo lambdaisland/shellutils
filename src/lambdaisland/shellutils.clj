@@ -7,7 +7,8 @@
    [clojure.string :as str])
   (:import
    (java.io File)
-   (java.nio.file Path Paths)))
+   (java.nio.file Files Path Paths)
+   (java.nio.file.attribute FileAttribute)))
 
 (defn cli-opts
   "Options map from lambdaisland.cli, if it is used. We auto-detect certain flags,
@@ -258,3 +259,9 @@
          (mapcat #(filter-files (ls %) (glob->regex pattern)) files)))
      [start-dir]
      patterns)))
+
+(defn temp-dir
+  ([]
+   (temp-dir "li_shellutils"))
+  ([path]
+   (Files/createTempDirectory path (into-array FileAttribute []))))
