@@ -2,9 +2,7 @@
 
 ## Added
 
-## Fixed
-
-## Changed
+- Add `temp-dir`
 
 # 0.1.13 (2024-02-19 / af37636)
 
