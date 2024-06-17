@@ -2,9 +2,7 @@
 
 ## Added
 
-## Fixed
-
-## Changed
+- Add `shellquote`
 
 # 0.2.17 (2024-02-26 / b261d16)
 

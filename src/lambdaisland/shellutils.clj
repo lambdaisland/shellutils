@@ -64,8 +64,23 @@
 
 ;; (def windows? (str/starts-with? (System/getProperty "os.name") "Windows"))
 
-(defn- cmd->str [args]
-  (str/join " " (map #(if (str/includes? % " ") (pr-str %) %) args)))
+(defn shellquote [a]
+  (let [a (str a)]
+    (cond
+      (and (str/includes? a "\"")
+           (str/includes? a "'"))
+      (str "'"
+           (str/replace a "'" "'\"'\"'")
+           "'")
+
+      (str/includes? a "'")
+      (str "\"" a "\"")
+
+      (re-find #"\s|\"" a)
+      (str "'" a "'")
+
+      :else
+      a)))
 
 (defn spawn
   "Like [[clojure.java.shell/sh]], but inherit IO stream from the parent process,
@@ -80,10 +95,8 @@
   (let [[opts args] (if (map? (last args))
                       [(last args) (butlast args)]
                       [{} args])
-        dir (:dir opts *cwd*)
-        ;; args (if windows? (cons "winpty" args) args)
-        ]
-    (println "=>" (cmd->str args) (str "(in " dir ")") "")
+        dir (:dir opts *cwd*)]
+    (println "=>" (str/join " " (map shellquote args)) (str "(in " dir ")") "")
     (when-not (:dry-run (cli-opts))
       (let [res (-> (process-builder args)
                     (cond-> dir
