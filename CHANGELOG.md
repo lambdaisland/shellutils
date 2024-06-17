@@ -1,4 +1,4 @@
-# Unreleased
+# 0.3.20 (2024-06-17 / eff4d1b)
 
 ## Added
 
